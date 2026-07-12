@@ -122,4 +122,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // initial render
     renderTasks();
+
+
+    // ===== DARK MODE TOGGLE =====
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Check for saved preference
+    const savedTheme = localStorage.getItem('taskie-theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = 'Light Mode';
+    }
+
+    themeToggle.addEventListener('click', function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('taskie-theme', 'light');
+            themeToggle.textContent = 'Dark Mode';
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('taskie-theme', 'dark');
+            themeToggle.textContent = 'Light Mode';
+        }
+    });
+        
 });
