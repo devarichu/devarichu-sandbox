@@ -131,85 +131,150 @@ header p {
     transform: scale(1.02);
 }
 
+
+
+
 /* Tasks List */
 
 .task-list h2 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #2d3748;
-    margin-bottom: 15px;
+    margin-bottom: 16px;
 }
 
-#task-container {
+#taskContainer {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
-#task-container li {
-    background: #fff;
-    padding: 14px 18px;
-    border: 1px solid #edf2f7;
+/* --- Individual Task Card --- */
+#taskContainer li {
+    background: white;
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
+    padding: 14px 18px;
     margin-bottom: 10px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    transition: 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 #taskContainer li:hover {
-    border-color: #cbd5e0;
-    background: #fcfcfd;
+    border-color: #b0b8c7;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-.task-info {
+/* --- Left side: Task text + Priority --- */
+.task-left {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
+    min-width: 0; /* Prevents overflow */
 }
 
 .task-text {
+    font-size: 1rem;
     font-weight: 500;
     color: #2d3748;
+    word-break: break-word;
 }
 
+/* Priority Badge */
 .priority-badge {
     font-size: 0.7rem;
-    padding: 3px 10px;
-    border-radius: 20px;
-    background: #edf2f7;
     font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+    background: #edf2f7;
     color: #4a5568;
 }
 
-.priority-badge.low { background: #c6f6d5; color: #C3CAF3; }
-.priority-badge.medium { background: #fefcbf; color: #7785E4; }
-.priority-badge.high { background: #fed7d7; color: #2335AF; }
-
-.task-actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.1rem;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: 0.2s;
+.priority-badge.low {
+    background: #EAECFB;
+    color: #7785e4;
 }
 
-.task-actions .complete-btn { color: #C3CAF3; }
-.task-actions .complete-btn:hover { background: #7785E4; }
-.task-actions .delete-btn { color: #7785E4; }
-.task-actions .delete-btn:hover { background: #2335AF; }
+.priority-badge.medium {
+    background: #c3caf3;
+    color: #2A41D5;
+}
 
+.priority-badge.high {
+    background: #7785e4;
+    color: #131E62;
+}
+
+/* --- Completed task styling --- */
+.completed-task .task-text {
+    text-decoration: line-through;
+    color: #a0aec0;
+}
+
+.completed-task .priority-badge {
+    opacity: 0.5;
+}
+
+/* --- Right side: Action Buttons --- */
+.task-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    margin-left: 12px;
+}
+
+.task-actions button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+}
+
+/* Complete button */
+.task-actions .complete-btn {
+    background: #7785E4;
+    color: white;
+}
+.task-actions .complete-btn:hover {
+    background: #7785E4;
+    transform: scale(1.03);
+}
+.task-actions .complete-btn.completed {
+    background: #edf2f7;
+    color: #7785E4;
+}
+.task-actions .complete-btn.completed:hover {
+    background: #edf2f7;
+}
+
+/* Delete button */
+.task-actions .delete-btn {
+    background: #2335AF;
+    color: white;
+}
+.task-actions .delete-btn:hover {
+    background: #2335AF;
+    transform: scale(1.03);
+}
+
+/* --- Empty state --- */
 .empty-message {
     color: #a0aec0;
     text-align: center;
     justify-content: center !important;
+    font-style: italic;
     padding: 30px !important;
-    list-style: none;
-}
-
-.completed .task-text {
-    text-decoration: line-through;
-    color: #a0aec0;
+    border: 2px dashed #e2e8f0 !important;
+    background: #f7fafc !important;
 }

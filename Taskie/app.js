@@ -28,43 +28,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderTasks() {
-        if (tasks.length === 0) {
-            taskContainer.innerHTML = `<li class="empty-message">✨ No tasks yet. Add one above!</li>`;
-            updateStats();
-            return;
-        }
-
-        // sorting tasks: first by completion, then by priority
-        const sorted = [...tasks].sort((a, b) => {
-            if (a.completed !== b.completed) return a.completed ? 1 : -1;
-            const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
-            return priorityOrder[a.priority] - priorityOrder[b.priority];
-        });
-
-        let html = '';
-        sorted.forEach((task, index) => {
-            const originalIndex = tasks.indexOf(task); // find real index for actions
-            const checkedClass = task.completed ? 'completed-task' : '';
-            const priorityClass = task.priority.toLowerCase();
-
-            html += `
-                <li class="${checkedClass}" data-index="${originalIndex}">
-                    <div class="task-info">
-                        <span class="task-text">${task.text}</span>
-                        <span class="priority-badge ${priorityClass}">${task.priority}</span>
-                    </div>
-                    <div class="task-actions">
-                        <button class="complete-btn" data-index="${originalIndex}">
-                            ${task.completed ? '↩️' : '✅'}
-                        </button>
-                        <button class="delete-btn" data-index="${originalIndex}">🗑️</button>
-                    </div>
-                </li>
-            `;
-        });
-        taskContainer.innerHTML = html;
+    if (tasks.length === 0) {
+        taskContainer.innerHTML = `<li class="empty-message">✨ No tasks yet. Add one above!</li>`;
         updateStats();
+        return;
     }
+
+    // Sort: incomplete first, then by priority (High > Medium > Low)
+    const sorted = [...tasks].sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
+
+    let html = '';
+    sorted.forEach((task, index) => {
+        const originalIndex = tasks.indexOf(task);
+        const completedClass = task.completed ? 'completed-task' : '';
+        const priorityClass = task.priority.toLowerCase();
+        const buttonText = task.completed ? '↩ Undo' : 'Complete';
+        const buttonClass = task.completed ? 'complete-btn completed' : 'complete-btn';
+
+        html += `
+            <li class="${completedClass}" data-index="${originalIndex}">
+                <div class="task-left">
+                    <span class="task-text">${task.text}</span>
+                    <span class="priority-badge ${priorityClass}">${task.priority}</span>
+                </div>
+                <div class="task-actions">
+                    <button class="${buttonClass}" data-index="${originalIndex}">${buttonText}</button>
+                    <button class="delete-btn" data-index="${originalIndex}">Delete</button>
+                </div>
+            </li>
+        `;
+    });
+    taskContainer.innerHTML = html;
+    updateStats();
+}
 
     // actions
     function addTask() {
