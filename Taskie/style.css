@@ -1,0 +1,215 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f7fc;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+header h1 {
+    font-size: 3rem;
+    color: #2d3748;
+}
+
+header p {
+    color: #718096;
+    margin-bottom: 25px;
+    border-left: 4px solid #6c63ff;
+    padding-left: 12px;
+    font-weight: 500;
+}
+
+/* Stats */
+
+.stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background-color: #f7fafc;
+    padding: 15px 25px;
+    border-radius: 12px;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    border-bottom: 4px solid #C3CAF3;
+}
+
+.stat-card h3 {
+    font-size: .85rem;
+    color: #4a5568;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card span {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    display: block;
+}
+
+.stat-card.pending { border-bottom-color: #7785E4;}
+.stat-card.completed { border-bottom-color: #2335AF; }
+
+/* Add Task */
+
+.add-task {
+    background: #f7fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.add-task h2 {
+    font-size: 1.1rem;
+    color: #2d3748;
+    margin-bottom: 12px;
+}
+
+.form-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.form-group input {
+    flex: 2;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
+}
+
+.form-group select {
+    padding: 12px 24px;
+    border: .5px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #fff;
+    font-size: 1rem;
+}
+
+.form-group button {
+    padding: 12px 24px;
+    background: #6c63ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 1rem;
+}
+
+.form-group button:hover {
+    background: #5a52d4;
+    transform: scale(1.02);
+}
+
+/* Tasks List */
+
+.task-list h2 {
+    font-size: 1.1rem;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+#task-container {
+    list-style: none;
+    padding: 0;
+}
+
+#task-container li {
+    background: #fff;
+    padding: 14px 18px;
+    border: 1px solid #edf2f7;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+#taskContainer li:hover {
+    border-color: #cbd5e0;
+    background: #fcfcfd;
+}
+
+.task-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.task-text {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.priority-badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #edf2f7;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.priority-badge.low { background: #c6f6d5; color: #C3CAF3; }
+.priority-badge.medium { background: #fefcbf; color: #7785E4; }
+.priority-badge.high { background: #fed7d7; color: #2335AF; }
+
+.task-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.task-actions .complete-btn { color: #C3CAF3; }
+.task-actions .complete-btn:hover { background: #7785E4; }
+.task-actions .delete-btn { color: #7785E4; }
+.task-actions .delete-btn:hover { background: #2335AF; }
+
+.empty-message {
+    color: #a0aec0;
+    text-align: center;
+    justify-content: center !important;
+    padding: 30px !important;
+    list-style: none;
+}
+
+.completed .task-text {
+    text-decoration: line-through;
+    color: #a0aec0;
+}

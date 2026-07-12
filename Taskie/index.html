@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taskie | Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <h1>Taskie</h1>
+            <p>Quality Control | Task Manager</p>
+        </header>
+
+        <!-- Stats Dashboard -->
+        <section class="stats">
+            <div class="stat-card">
+                <h3>Total Tasks</h3>
+                <span id="totalTasks">0</span>
+            </div>
+            <div class="stat-card pending">
+                <h3>Pending Tasks</h3>
+                <span id="pendingTasks">0</span>
+            </div>
+            <div class="stat-card completed">
+                <h3>Completed Tasks</h3>
+                <span id="completedTasks">0</span>
+            </div>
+        </section>
+
+        <!-- Here we have Task Form to add new tasks -->
+        <section class="add-task">
+            <h2>Add New Task</h2>
+            <div class="form-group">
+                <input type="text" id="taskInput" placeholder="What needs to be done?">
+                <select id=""prioritySelect">
+                    <option value="low">Low Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="high">High Priority</option>
+                </select>
+                <button id="addTaskBtn">Add Task</button>
+            </div>
+        </section>
+
+        <!-- Task List -->
+        <section class="task-list">
+            <h2>Your Taks</h2>
+            <ul id="taskContainer">
+                <!-- Then here we show the tasks -->
+                <li class="empty-message">No tasks YET. Add one above!</li>
+            </ul>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
