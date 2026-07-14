@@ -17,7 +17,7 @@
                 <img src="assets/logo.png" alt="Taskie Logo" class="logo-icon">
                 Taskie
             </h1>
-            <p>Quality Control | Task Manager</p>
+            <p>Take care of your tasks!</p>
             <button class="theme-toggle" id="themeToggle">Dark Mode</button>
         </header>
 
@@ -53,7 +53,15 @@
 
         <!-- Task List -->
         <section class="task-list">
-            <h2>Your Taks</h2>
+            <h2>Your Tasks</h2>
+            <!-- Filter Buttons -->
+            <div class="filter-bar">
+                    <button class="filter-btn active" data-filter="all"> All</button>
+                    <button class="filter-btn" data-filter="active">  Active</button>
+                    <button class="filter-btn" data-filter="completed"> Completed</button>
+                </div>
+
+
             <ul id="taskContainer">
                 <!-- Then here we show the tasks -->
                 <li class="empty-message">No tasks YET. Add one above!</li>

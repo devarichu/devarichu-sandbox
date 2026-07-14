@@ -172,6 +172,46 @@ header p {
 .stat-card.pending { border-bottom-color: #5063DC; }
 .stat-card.completed { border-bottom-color: #1B2A88; }
 
+/* ===== FILTER BAR ===== */
+.filter-bar {
+    display: flex;
+    gap: 9px;
+    margin-bottom: 16px;
+    background: var(--bg-card);
+    padding: 6px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    transition: background 0.3s ease;
+}
+
+.filter-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.filter-btn:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.filter-btn.active {
+    background: var(--btn-primary-bg);
+    color: white;
+    box-shadow: 0 2px 8px rgba(119, 133, 228, 0.3);
+}
+
+.filter-btn.active:hover {
+    background: var(--btn-primary-hover);
+}
+
 /* ===== ADD TASK ===== */
 .add-task {
     background: var(--bg-card);

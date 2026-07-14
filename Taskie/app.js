@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // loading task from local
     let tasks = JSON.parse(localStorage.getItem('taskieTasks')) || [];
 
+    //filter state
+    let currentFilter = 'all'; // 'all', 'active', 'completed'
+
     // functions
     function saveTasks() {
         localStorage.setItem('taskieTasks', JSON.stringify(tasks));
@@ -37,12 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sort: incomplete first, then by priority (High > Medium > Low)
     const sorted = [...tasks].sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        const priorityOrder = { 'High': 0, 'Medium': 1, 'Low': 2 };
+        const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
         return priorityOrder[a.priority] - priorityOrder[b.priority];
     });
 
+    // --- Filter the sorted list ---
+    let filtered = sorted;
+    if (currentFilter === 'active') {
+        filtered = sorted.filter(task => !task.completed);
+    } else if (currentFilter === 'completed') {
+        filtered = sorted.filter(task => task.completed);
+    }
+
     let html = '';
-    sorted.forEach((task, index) => {
+    filtered.forEach((task, index) => {
         const originalIndex = tasks.indexOf(task);
         const completedClass = task.completed ? 'completed-task' : '';
         const priorityClass = task.priority.toLowerCase();
@@ -146,5 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
             themeToggle.textContent = 'Light Mode';
         }
     });
-        
+
+    // ===== FILTER BUTTONS =====
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            currentFilter = button.getAttribute('data-filter');
+            renderTasks();
+        });
+    });
+
 });
