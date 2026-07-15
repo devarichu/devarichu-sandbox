@@ -1,3 +1,5 @@
+console.log("Taskie JavaScript is LOADED!");
+
 // Wait for our DOM to load
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -11,15 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const completedSpan = document.getElementById('completedTasks');
 
     // loading task from local
-    let tasks = JSON.parse(localStorage.getItem('taskieTasks')) || [];
+    let tasks = [];
 
     //filter state
     let currentFilter = 'all'; // 'all', 'active', 'completed'
 
     // functions
-    function saveTasks() {
-        localStorage.setItem('taskieTasks', JSON.stringify(tasks));
-    }
 
     function updateStats() {
         const total = tasks.length;
@@ -30,83 +29,123 @@ document.addEventListener('DOMContentLoaded', () => {
         completedSpan.textContent = completed;
     }
 
+    // connect to backend on port 5050
+    async function loadTaskFromDB() {
+        const response = await fetch('http://127.0.0.1:5050/tasks');
+        tasks = await response.json();
+        renderTasks();
+    }
+
     function renderTasks() {
-    if (tasks.length === 0) {
-        taskContainer.innerHTML = `<li class="empty-message">✨ No tasks yet. Add one above!</li>`;
+        if (tasks.length === 0) {
+            taskContainer.innerHTML = `<li class="empty-message">✨ No tasks yet. Add one above!</li>`;
+            updateStats();
+            return;
+        }
+
+        // Sort: incomplete first, then by priority (High > Medium > Low)
+        const sorted = [...tasks].sort((a, b) => {
+            if (a.completed !== b.completed) return a.completed ? 1 : -1;
+            const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
+        });
+
+        // --- Filter the sorted list ---
+        let filtered = sorted;
+        if (currentFilter === 'active') {
+            filtered = sorted.filter(task => !task.completed);
+        } else if (currentFilter === 'completed') {
+            filtered = sorted.filter(task => task.completed);
+        }
+
+        let html = '';
+        filtered.forEach((task, index) => {
+            const originalIndex = tasks.indexOf(task);
+            const completedClass = task.completed ? 'completed-task' : '';
+            const priorityClass = task.priority.toLowerCase();
+            const buttonText = task.completed ? '↩ Undo' : 'Complete';
+            const buttonClass = task.completed ? 'complete-btn completed' : 'complete-btn';
+
+            html += `
+                <li class="${completedClass}" data-index="${originalIndex}">
+                    <div class="task-left">
+                        <span class="task-text">${task.text}</span>
+                        <span class="priority-badge ${priorityClass}">${task.priority}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button class="${buttonClass}" data-index="${originalIndex}">${buttonText}</button>
+                        <button class="delete-btn" data-index="${originalIndex}">Delete</button>
+                    </div>
+                </li>
+            `;
+        });
+        taskContainer.innerHTML = html;
         updateStats();
-        return;
     }
-
-    // Sort: incomplete first, then by priority (High > Medium > Low)
-    const sorted = [...tasks].sort((a, b) => {
-        if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        const priorityOrder = { 'high': 0, 'medium': 1, 'low': 2 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-    });
-
-    // --- Filter the sorted list ---
-    let filtered = sorted;
-    if (currentFilter === 'active') {
-        filtered = sorted.filter(task => !task.completed);
-    } else if (currentFilter === 'completed') {
-        filtered = sorted.filter(task => task.completed);
-    }
-
-    let html = '';
-    filtered.forEach((task, index) => {
-        const originalIndex = tasks.indexOf(task);
-        const completedClass = task.completed ? 'completed-task' : '';
-        const priorityClass = task.priority.toLowerCase();
-        const buttonText = task.completed ? '↩ Undo' : 'Complete';
-        const buttonClass = task.completed ? 'complete-btn completed' : 'complete-btn';
-
-        html += `
-            <li class="${completedClass}" data-index="${originalIndex}">
-                <div class="task-left">
-                    <span class="task-text">${task.text}</span>
-                    <span class="priority-badge ${priorityClass}">${task.priority}</span>
-                </div>
-                <div class="task-actions">
-                    <button class="${buttonClass}" data-index="${originalIndex}">${buttonText}</button>
-                    <button class="delete-btn" data-index="${originalIndex}">Delete</button>
-                </div>
-            </li>
-        `;
-    });
-    taskContainer.innerHTML = html;
-    updateStats();
-}
 
     // actions
-    function addTask() {
+    async function addTask() {
+        console.log("Add task button clicked!"); // Debug line
+        
         const text = taskInput.value.trim();
         if (text === '') {
-            alert('Please write a task!');
+            alert('Please write a task!')
             return;
         }
         const priority = prioritySelect.value;
-        tasks.push({
-            text: text,
-            priority: priority,
-            completed: false
-        });
-        saveTasks();
-        renderTasks();
-        taskInput.value = ''; // helps clear the input field
-        taskInput.focus();
-    }
 
-    function toggleComplete(index) {
-        tasks[index].completed = !tasks[index].completed;
-        saveTasks();
-        renderTasks();
-    }
+        console.log("Sending task to backend:", { text, priority }); // Debug line
 
-    function deleteTask(index) {
-        if (confirm(`Delete "${tasks[index].text}"?`)) {
-            tasks.splice(index, 1);
-            saveTasks();
+        // send to backend
+        try {
+            const response = await fetch('http://127.0.0.1:5050/tasks', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ text, priority })
+            });
+            const newTask = await response.json();
+            console.log("Task saved successfully:", newTask); // Debug line
+            tasks.push(newTask);
             renderTasks();
+            taskInput.value = '';
+            taskInput.focus();
+        } catch (error) {
+            console.error("Error adding task:", error);
+            alert("Failed to add task. Check console for details.");
+        }
+    }
+
+    async function toggleComplete(index) {
+        const task = tasks[index];
+        const updatedCompleted = !task.completed;
+
+        try {
+            await fetch(`http://127.0.0.1:5050/tasks/${task.id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'}, // ✅ FIXED: added 's'
+                body: JSON.stringify({completed: updatedCompleted})
+            });
+            task.completed = updatedCompleted;
+            renderTasks();
+        } catch (error) {
+            console.error("Error toggling task:", error);
+            alert("Failed to update task. Check console for details.");
+        }
+    }
+
+    async function deleteTask(index) {
+        const task = tasks[index];
+        if (confirm(`Delete "${task.text}"?`)) {
+            try {
+                await fetch(`http://127.0.0.1:5050/tasks/${task.id}`, { // ✅ FIXED: added '//'
+                    method: 'DELETE'
+                });
+                tasks.splice(index, 1);
+                renderTasks();
+            } catch (error) {
+                console.error("Error deleting task:", error);
+                alert("Failed to delete task. Check console for details.");
+            }
         }
     }
 
@@ -131,9 +170,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // initial render
-    renderTasks();
-
+    // initial render - load from database
+    loadTaskFromDB();
 
     // ===== DARK MODE TOGGLE =====
     const themeToggle = document.getElementById('themeToggle');
