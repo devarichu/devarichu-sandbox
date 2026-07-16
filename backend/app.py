@@ -1,20 +1,43 @@
+import os
+import sqlite3
+import psycopg2
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import sqlite3
 
 app = Flask(__name__)
 CORS(app)
 
-# database setup
+# Database Setup
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+def get_db_connection():
+    if DATABASE_URL:
+        return psycopg2.connect('DATABASE_URL')
+    else:
+        return sqlite3.connect('tasks.db')
+    
+def get_placeholder():
+    return '%' if DATABASE_URL else '?'
+
 def init_db():
-    conn = sqlite3.connect('tasks.db')
+    conn = get_db_connection()
     c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS tasks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            text TEXT NOT NULL,
-            priority TEXT NOT NULL,
-            completed BOOLEAN NOT NULL DEFAULT 0
+    if DATABASE_URL:
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS tasks (
+                id SERIAL PRIMARY KEY,
+                text TEXT NOT NULL,
+                priority TEXT NOT NULL,
+                completed BOOLEAN NOT NULL DEFAULT FALSE
+            )
+        ''')
+    else:
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                text TEXT NOT NULL,
+                priority TEXT NOT NULL,
+                completed BOOLEAN NOT NULL DEFAULT O
             )
         ''')
     conn.commit()
@@ -22,27 +45,25 @@ def init_db():
 
 init_db()
 
-# 1. get all tasks
+# API routes
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
-    conn = sqlite3.connect('tasks.db')
+    conn = get_db_connection()
     c = conn.cursor()
     c.execute('SELECT id, text, priority, completed FROM tasks')
     rows = c.fetchall()
     conn.close()
 
-    # convert rows to a list of dictionaries
     tasks = []
     for row in rows:
         tasks.append({
             'id': row[0],
             'text': row[1],
-            'priority': row[2],
+            'priorirty': row[2],
             'completed': bool(row[3])
         })
     return jsonify(tasks)
 
-# 2. post a new task
 @app.route('/tasks', methods=['POST'])
 def add_task():
     data = request.json
@@ -50,42 +71,60 @@ def add_task():
     priority = data.get('priority')
 
     if not text:
-        return jsonify({'error': 'Text is required'}), 400
+        return jsonify({'error': 'Text is requiered'}), 400
     
-    conn = sqlite3.connect('tasks.db')
+    conn = get_db_connection()
     c = conn.cursor()
-    c.execute('INSERT INTO tasks (text, priority, completed) VALUES (?, ?, ?)', (text, priority, 0))
+    placeholders = get_placeholder()
+    c.execute(f'INSERT INTO tasks (text, priority, completed) VALUES ({placeholders}, {placeholders}, {placeholders})',
+            (text, priority, False if DATABASE_URL else 0))
     conn.commit()
-    task_id = c.lastrowid
+    tasks_id = c.lastrowid if not DATABASE_URL else c.fetchone()[0] if hasattr(c, 'fetchone') else None
     conn.close()
 
-    return jsonify({'id': task_id, 'text': text, 'priority': priority, 'completed': False}), 201
+    # fetch the newly created task to return it
+    conn2 = get_db_connection()
+    c2 = conn2.cursor()
+    if DATABASE_URL:
+        c2.execute('SELECT id, text, priority, completed FROM tasks WHERE id = (SELECT lastval())')
+    else:
+        c2.execute('SELECT id, text, priority, completed FROM tasks WHERE id = last_insert_rowid()')
+    row = c2.fetchone()
+    conn2.close()
 
-# 3. PUT (Update) a task completion status
-@app.route('/tasks/<int:task_id>', methods=['PUT'])
+    return jsonify({
+        'id': row[0],
+        'text': row[1],
+        'priority': row[2],
+        'completed': bool(row[3])
+    }), 201
+
+@app.route('/tasks/<init:task_id', methods=['PUT'])
 def update_task(task_id):
     data = request.json
     completed = data.get('completed')
 
-    conn = sqlite3.connect('tasks.db')
+    conn = get_db_connection()
     c = conn.cursor()
-    c.execute('UPDATE tasks SET completed = ? WHERE id = ?', (completed, task_id))
+    c.execute('UPDATE tasks SET completed = %s WHERE id = %s' if DATABASE_URL else 'UPDATE tasks SET completed = ? WHERE id = ?',
+        (completed, task_id))
     conn.commit()
     conn.close()
 
     return jsonify({'success': True})
 
-# 4. DELETE a task
-@app.route('/tasks/<int:task_id>', methods=['DELETE'])
+@app.route('/tasks/<init:task_id>', methods=['DELETE'])
 def delete_task(task_id):
-    conn = sqlite3.connect('tasks.db')
+    conn = get_db_connection()
     c = conn.cursor()
-    c.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
+    c.execute('DELETE FROM tasks WHERE id = %s' if DATABASE_URL else 'DELETE FROM tasks WHERE id = ?', (task_id))
     conn.commit()
     conn.close()
 
     return jsonify({'success': True})
 
 # Run the server
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5050)
+    port = int(os.getenv('PORT', 5050))
+    app.run(debug=True, port=port)
